@@ -61,12 +61,15 @@ activationH<-subset(activation, activation$Sexe=="H",
 activationF<-subset(activation, activation$Sexe=="F", 
 				select=Age:DHipp)
 
+# Supression de la variable de volume cérébral
+activationHbp <- subset(activationH, select=Age,ILH:DHipp)
+activationFbp <- subset(activationF, select=Age,ILH:DHipp)
 par(mfrow=c(1,2))
-boxplot(activationH, axes = c(1,2))
-boxplot(activationF, axes = c(1,1))
+boxplot(activationHbp, axes = c(1,2))
+boxplot(activationFbp, axes = c(1,1))
 
 par(mfrow=c(1,3))
-ACP<-PCAmix(activationH, graph = FALSE)
+ACP<-PCAmix(activationH, graph = TRUE)
 
 ######################################
 
@@ -74,6 +77,7 @@ ACP<-PCAmix(activationH, graph = FALSE)
 
 ######################################
 
-
+plot(activation$GFront~activation$GAng)
+summary(lm(activation$GFront~activation$GAng))
 
 
