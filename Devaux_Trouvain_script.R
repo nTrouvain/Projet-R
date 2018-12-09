@@ -61,15 +61,33 @@ activationH<-subset(activation, activation$Sexe=="H",
 activationF<-subset(activation, activation$Sexe=="F", 
 				select=Age:DHipp)
 
-# Supression de la variable de volume cérébral
-activationHbp <- subset(activationH, select=Age,ILH:DHipp)
-activationFbp <- subset(activationF, select=Age,ILH:DHipp)
+#Evaluation de l'influence du sexe sur la variable d'intérêt
+shapiro.test(activationH$GFront)
+shapiro.test(activationF$GFront)
+t.test(activationH$GFront, activationF$GFront)
+var.test(activationH$GFront, activationF$GFront)
+
+plot(
+
+# Supression des variables de volume cérébral, age et ILH
+# Les données sont trop disparates pour que le boxplot
+# soit significatif autrement
+activationHbp <- activationH
+activationHbp$Vol <- NULL
+activationHbp$Age <- NULL
+activationHbp$ILH <- NULL
+activationFbp <- activationF
+activationFbp$Vol <- NULL
+activationFbp$Age <- NULL
+activationFbp$ILH <- NULL
 par(mfrow=c(1,2))
 boxplot(activationHbp, axes = c(1,2))
 boxplot(activationFbp, axes = c(1,1))
 
+# ACP
 par(mfrow=c(1,3))
 ACP<-PCAmix(activationH, graph = TRUE)
+ACP<-PCAmix(activationHbp, graph = TRUE)
 
 ######################################
 
@@ -77,7 +95,36 @@ ACP<-PCAmix(activationH, graph = TRUE)
 
 ######################################
 
-plot(activation$GFront~activation$GAng)
-summary(lm(activation$GFront~activation$GAng))
+# Stockage des variables (raccouricement des noms)
 
+age <- activation$Age
+vol <- activation$Vol
+ILH <- activation$ILH
+gFront <- activation$GFront
+gAng <- activation$GAng
+gOcci <- activation$GOcci
+gRol <- activation$GRol
+gTemp <- activation$GTemp
+gHipp <- activation$GHipp
+dFront <- activation$DFront
+dAng <- activation$DAng
+dOcci <- activation$DOcci
+dRol <- activation$DRol
+dTemp <- activation$DTemp
+dHipp <- activation$DHipp
+
+lin<-lm(gFront~vol+ILH+gFront+gAng+gOcci
+		+gRol+gTemp+gHipp+dFront+dAng+dOcci
+		+dRol+dTemp+dHipp)
+summary(lin)
+
+anova(lin)
+
+par(mfrow=c(1,2))
+plot(lin$fit)
+
+lin2<-step(lin)
+plot(lin2$fit)
+
+anova(lin2)
 
