@@ -16,7 +16,7 @@ setwd("C:/Users/NATHAN/Desktop/Projet R")
 require(PCAmixdata)
 
 activation <- as.data.frame(readRDS("activation.Rdata"))
-#head(activation)
+head(activation)
 
 # Renommage des variables
 # (raccourcissement des noms)
@@ -52,9 +52,6 @@ plot(res,choice="cor",main="Variables quantitatives")
 plot(res,choice="sqload",coloring.var=T, leg=TRUE,
      posleg="topright", main="Variables mixtes")
 
-
-##### ACP Données quantitatives #####
-
 #Récupération des données quantitatives en fonction du sexe
 activationH<-subset(activation, activation$Sexe=="H", 
 				select=Age:DHipp)
@@ -62,12 +59,23 @@ activationF<-subset(activation, activation$Sexe=="F",
 				select=Age:DHipp)
 
 #Evaluation de l'influence du sexe sur la variable d'intérêt
+plot(activation$GFront~activation$Sexe)
+
 shapiro.test(activationH$GFront)
 shapiro.test(activationF$GFront)
 t.test(activationH$GFront, activationF$GFront)
 var.test(activationH$GFront, activationF$GFront)
 
-plot(
+#Evaluation de l'influence du sexe sur le volume cérébral
+plot(activation$Vol~activation$Sexe)
+aov(activation$Vol~activation$Sexe)
+res<-lm(activation$Vol~activation$Sexe)
+anova(res)
+summary(res)
+plot(res$residuals,res$fitted.values)
+
+#Evaluation de l'influence du sexe sur l'ILH
+plot(activation$ILH~activation$Sexe)
 
 # Supression des variables de volume cérébral, age et ILH
 # Les données sont trop disparates pour que le boxplot
