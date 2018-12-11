@@ -42,15 +42,24 @@ sexe <- split$X.quali
 
 res<-PCAmix(X.quanti=quanti, X.quali=sexe,
 		rename.level=FALSE, graph=FALSE)
-                     
+
+round(res$eig,digit=3)
+barplot(res$eig[,1],main="Eigenvalues",names.arg=1:nrow(res$eig))
+abline(h=1,col=2,lwd=2)
+
 par(mfrow=c(2,2))
 plot(res,choice="ind",coloring.ind=sexe$Sexe,label=FALSE,
       posleg="topleft", main="Observations")
 plot(res,choice="levels",xlim=c(-1.5,2.5), 
-	main="Variables qualitatives")
-plot(res,choice="cor",main="Variables quantitatives")
+	main="Modalités qualitative")
+plot(res,choice="cor",main="Cercle de corrélation")
 plot(res,choice="sqload",coloring.var=T, leg=TRUE,
-     posleg="topright", main="Variables mixtes")
+     posleg="topright", main="Squared Loadings")
+
+
+#### ANOVA Broca~sexe
+
+
 
 #Récupération des données quantitatives en fonction du sexe
 activationH<-subset(activation, activation$Sexe=="H", 
@@ -59,8 +68,6 @@ activationF<-subset(activation, activation$Sexe=="F",
 				select=Age:DHipp)
 
 #Evaluation de l'influence du sexe sur la variable d'intérêt
-plot(activation$GFront~activation$Sexe)
-
 shapiro.test(activationH$GFront)
 shapiro.test(activationF$GFront)
 t.test(activationH$GFront, activationF$GFront)
