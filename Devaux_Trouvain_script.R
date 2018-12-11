@@ -33,6 +33,27 @@ rownames(activation)<-sujets
 # Supression de activation$Sujet
 
 activation<-subset(activation, select=Sexe:DHipp)
+activation.acti<-subset(activation, select=GFront:DHipp)
+boxplot(activation.acti)
+activation.indiv<-subset(activation, TRUE, select=Vol)
+boxplot(activation.indiv)
+
+#Récupération des données quantitatives en fonction du sexe
+activationH<-subset(activation, activation$Sexe=="H", 
+                    select=Age:DHipp)
+activationF<-subset(activation, activation$Sexe=="F", 
+                    select=Age:DHipp)
+
+# Boxplot
+
+# Supression des variables de volume cérébral, age et ILH
+# Les données sont trop disparates pour que le boxplot
+# soit significatif autrement
+activationHbp <- subset(activationH, TRUE, select = GFront:DHipp)
+activationFbp <- subset(activationF, TRUE, select = GFront:DHipp)
+par(mfrow=c(2,1))
+boxplot(activationHbp, axes = c(1,2))
+boxplot(activationFbp, axes = c(1,1))
 
 ##### ACP Données mixtes #####
 
@@ -59,14 +80,6 @@ plot(res,choice="sqload",coloring.var=T, leg=TRUE,
 
 #### ANOVA Broca~sexe
 
-
-
-#Récupération des données quantitatives en fonction du sexe
-activationH<-subset(activation, activation$Sexe=="H", 
-				select=Age:DHipp)
-activationF<-subset(activation, activation$Sexe=="F", 
-				select=Age:DHipp)
-
 #Evaluation de l'influence du sexe sur la variable d'intérêt
 shapiro.test(activationH$GFront)
 shapiro.test(activationF$GFront)
@@ -84,20 +97,7 @@ plot(res$residuals,res$fitted.values)
 #Evaluation de l'influence du sexe sur l'ILH
 plot(activation$ILH~activation$Sexe)
 
-# Supression des variables de volume cérébral, age et ILH
-# Les données sont trop disparates pour que le boxplot
-# soit significatif autrement
-activationHbp <- activationH
-activationHbp$Vol <- NULL
-activationHbp$Age <- NULL
-activationHbp$ILH <- NULL
-activationFbp <- activationF
-activationFbp$Vol <- NULL
-activationFbp$Age <- NULL
-activationFbp$ILH <- NULL
-par(mfrow=c(1,2))
-boxplot(activationHbp, axes = c(1,2))
-boxplot(activationFbp, axes = c(1,1))
+
 
 # ACP
 par(mfrow=c(1,3))
