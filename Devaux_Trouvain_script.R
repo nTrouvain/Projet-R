@@ -68,6 +68,7 @@ round(res$eig,digit=3)
 barplot(res$eig[,1],main="Eigenvalues",names.arg=1:nrow(res$eig))
 abline(h=1,col=2,lwd=2)
 
+#Axes 1-2
 par(mfrow=c(2,2))
 plot(res,choice="ind",coloring.ind=sexe$Sexe,label=FALSE,
       posleg="topleft", main="Observations")
@@ -77,34 +78,24 @@ plot(res,choice="cor",main="Cercle de corrélation")
 plot(res,choice="sqload",coloring.var=T, leg=TRUE,
      posleg="topright", main="Squared Loadings")
 
+#Axes 1-3
+plot(res,axes=c(1,3),choice="ind",coloring.ind=sexe$Sexe,label=FALSE,
+     posleg="topleft", main="Observations")
+plot(res,axes=c(1,3),choice="levels",xlim=c(-1.5,2.5), 
+     main="Modalités qualitatives")
+plot(res,axes=c(1,3),choice="cor",main="Cercle de corrélation")
+plot(res,axes=c(1,3),choice="sqload",coloring.var=T, leg=TRUE,
+     posleg="topright", main="Squared Loadings")
 
+#Axes 1-4
+plot(res,axes=c(1,4),choice="ind",coloring.ind=sexe$Sexe,label=FALSE,
+     posleg="topleft", main="Observations")
+plot(res,axes=c(1,4),choice="levels",xlim=c(-1.5,2.5), 
+     main="Modalités qualitatives")
+plot(res,axes=c(1,4),choice="cor",main="Cercle de corrélation")
+plot(res,axes=c(1,4),choice="sqload",coloring.var=T, leg=TRUE,
+     posleg="topright", main="Squared Loadings")
 
-
-#### ANOVA Broca~sexe
-
-#Evaluation de l'influence du sexe sur la variable d'intérêt
-shapiro.test(activationH$GFront)
-shapiro.test(activationF$GFront)
-t.test(activationH$GFront, activationF$GFront)
-var.test(activationH$GFront, activationF$GFront)
-
-#Evaluation de l'influence du sexe sur le volume cérébral
-plot(activation$Vol~activation$Sexe)
-aov(activation$Vol~activation$Sexe)
-res<-lm(activation$Vol~activation$Sexe)
-anova(res)
-summary(res)
-plot(res$residuals,res$fitted.values)
-
-#Evaluation de l'influence du sexe sur l'ILH
-plot(activation$ILH~activation$Sexe)
-
-
-
-# ACP
-par(mfrow=c(1,3))
-ACP<-PCAmix(activationH, graph = TRUE)
-ACP<-PCAmix(activationHbp, graph = TRUE)
 
 ######################################
 
@@ -113,7 +104,6 @@ ACP<-PCAmix(activationHbp, graph = TRUE)
 ######################################
 
 # Stockage des variables (raccouricement des noms)
-
 sexe<-activation$Sexe
 age <- activation$Age
 vol <- activation$Vol
@@ -131,20 +121,74 @@ dRol <- activation$DRol
 dTemp <- activation$DTemp
 dHipp <- activation$DHipp
 
+# Données quantitatives uniquement
+activation.quanti<-subset(activation, select = Age:DHipp)
+
+#Evaluation de l'influence du sexe sur la variable d'intérêt
+shapiro.test(activationF$GFront)
+shapiro.test(activationM$GFront)
+t.test(activationH$GFront, activationF$GFront)
+var.test(activationH$GFront, activationF$GFront)
+
+#Evaluation de l'influence du ILH sur GFront
+lin<-lm(gFront~ILH)
+summary(lin)
+
+par(mfrow=c(1,2))
+plot(lin$fitted.values, activation$GFront)
+abline(0,1,col=2)
+plot(lin$fitted.values,lin$residuals)
+abline(0,0,col=2)
+
+
+# ANOVA GFront~Sexe
+
+res.aov<-lm(GFront~Sexe, activation)
+anova(res.aov)
+summary(res.aov)
+
+### ANCOVA ###
 lin<-lm(gFront~vol+ILH+gFront+gAng+gOcci
 		+gRol+gTemp+gHipp+dFront+dAng+dOcci
 		+dRol+dTemp+dHipp+sexe)
 summary(lin)
 
-step(lin, direction = c("backward") )
+par(mfrow=c(1,2))
+plot(lin$fitted.values, activation$GFront)
+abline(0,1,col=2)
+plot(lin$fitted.values,lin$residuals)
+abline(0,0,col=2)
 
-anova(lin)
+# AIC
+step(lin)
 
 par(mfrow=c(1,2))
-plot(lin$fit)
+plot(lin$fitted.values, activation$GFront)
+abline(0,1,col=2)
+plot(lin$fitted.values,lin$residuals)
+abline(0,0,col=2)
 
-lin2<-step(lin)
-plot(lin2$fit)
+# Sans le sexe
 
-anova(lin2)
+lin<-lm(gFront~vol+ILH+gFront+gAng+gOcci
+        +gRol+gTemp+gHipp+dFront+dAng+dOcci
+        +dRol+dTemp+dHipp)
+summary(lin)
+
+par(mfrow=c(1,2))
+plot(lin$fitted.values, activation$GFront)
+abline(0,1,col=2)
+plot(lin$fitted.values,lin$residuals)
+abline(0,0,col=2)
+
+# AIC
+lin<-step(lin)
+summary(lin)
+
+par(mfrow=c(1,2))
+plot(lin$fitted.values, activation$GFront)
+abline(0,1,col=2)
+plot(lin$fitted.values,lin$residuals)
+abline(0,0,col=2)
+
 
