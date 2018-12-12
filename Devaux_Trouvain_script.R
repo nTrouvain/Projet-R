@@ -72,10 +72,12 @@ par(mfrow=c(2,2))
 plot(res,choice="ind",coloring.ind=sexe$Sexe,label=FALSE,
       posleg="topleft", main="Observations")
 plot(res,choice="levels",xlim=c(-1.5,2.5), 
-	main="Modalités qualitative")
+	main="Modalités qualitatives")
 plot(res,choice="cor",main="Cercle de corrélation")
 plot(res,choice="sqload",coloring.var=T, leg=TRUE,
      posleg="topright", main="Squared Loadings")
+
+
 
 
 #### ANOVA Broca~sexe
@@ -112,6 +114,7 @@ ACP<-PCAmix(activationHbp, graph = TRUE)
 
 # Stockage des variables (raccouricement des noms)
 
+sexe<-activation$Sexe
 age <- activation$Age
 vol <- activation$Vol
 ILH <- activation$ILH
@@ -130,8 +133,10 @@ dHipp <- activation$DHipp
 
 lin<-lm(gFront~vol+ILH+gFront+gAng+gOcci
 		+gRol+gTemp+gHipp+dFront+dAng+dOcci
-		+dRol+dTemp+dHipp)
+		+dRol+dTemp+dHipp+sexe)
 summary(lin)
+
+step(lin, direction = c("backward") )
 
 anova(lin)
 
