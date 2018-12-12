@@ -35,6 +35,7 @@ rownames(activation)<-sujets
 activation<-subset(activation, select=Sexe:DHipp)
 activation.acti<-subset(activation, select=GFront:DHipp)
 boxplot(activation.acti)
+abline(0,0,col=2)
 activation.indiv<-subset(activation, TRUE, select=Vol)
 boxplot(activation.indiv)
 
@@ -44,16 +45,16 @@ activationH<-subset(activation, activation$Sexe=="H",
 activationF<-subset(activation, activation$Sexe=="F", 
                     select=Age:DHipp)
 
-# Boxplot
+sd(activationH$GFront)
+sd(activationF$GFront)
+boxplot(activationH$GFront, activationF$GFront, names=c("Hommes\n sigma=0,5024824","Femmes\n sigma=0,4542667"), ylab="GFront")
+summary(activationH$GFront)
+summary(activationF$GFront)
 
-# Supression des variables de volume cérébral, age et ILH
-# Les données sont trop disparates pour que le boxplot
-# soit significatif autrement
-activationHbp <- subset(activationH, TRUE, select = GFront:DHipp)
-activationFbp <- subset(activationF, TRUE, select = GFront:DHipp)
-par(mfrow=c(2,1))
-boxplot(activationHbp, axes = c(1,2))
-boxplot(activationFbp, axes = c(1,1))
+shapiro.test(activationH$GFront)
+shapiro.test(activationF$GFront)
+t.test(activationH$GFront, activationF$GFront)
+var.test(activationH$GFront, activationF$GFront)
 
 ##### ACP Données mixtes #####
 
@@ -65,12 +66,15 @@ res<-PCAmix(X.quanti=quanti, X.quali=sexe,
 		rename.level=FALSE, graph=FALSE)
 
 round(res$eig,digit=3)
+
+round(res$sqload, digit=3)
+
 barplot(res$eig[,1],main="Eigenvalues",names.arg=1:nrow(res$eig))
 abline(h=1,col=2,lwd=2)
 
 #Axes 1-2
 par(mfrow=c(2,2))
-plot(res,choice="ind",coloring.ind=sexe$Sexe,label=FALSE,
+plot(res,choice="ind",coloring.ind=sexe,label=FALSE,
       posleg="topleft", main="Observations")
 plot(res,choice="levels",xlim=c(-1.5,2.5), 
 	main="Modalités qualitatives")
@@ -79,7 +83,7 @@ plot(res,choice="sqload",coloring.var=T, leg=TRUE,
      posleg="topright", main="Squared Loadings")
 
 #Axes 1-3
-plot(res,axes=c(1,3),choice="ind",coloring.ind=sexe$Sexe,label=FALSE,
+plot(res,axes=c(1,3),choice="ind",coloring.ind=sexe,label=FALSE,
      posleg="topleft", main="Observations")
 plot(res,axes=c(1,3),choice="levels",xlim=c(-1.5,2.5), 
      main="Modalités qualitatives")
@@ -88,7 +92,7 @@ plot(res,axes=c(1,3),choice="sqload",coloring.var=T, leg=TRUE,
      posleg="topright", main="Squared Loadings")
 
 #Axes 1-4
-plot(res,axes=c(1,4),choice="ind",coloring.ind=sexe$Sexe,label=FALSE,
+plot(res,axes=c(1,4),choice="ind",coloring.ind=sexe,label=FALSE,
      posleg="topleft", main="Observations")
 plot(res,axes=c(1,4),choice="levels",xlim=c(-1.5,2.5), 
      main="Modalités qualitatives")
@@ -123,23 +127,6 @@ dHipp <- activation$DHipp
 
 # Données quantitatives uniquement
 activation.quanti<-subset(activation, select = Age:DHipp)
-
-#Evaluation de l'influence du sexe sur la variable d'intérêt
-shapiro.test(activationF$GFront)
-shapiro.test(activationM$GFront)
-t.test(activationH$GFront, activationF$GFront)
-var.test(activationH$GFront, activationF$GFront)
-
-#Evaluation de l'influence du ILH sur GFront
-lin<-lm(gFront~ILH)
-summary(lin)
-
-par(mfrow=c(1,2))
-plot(lin$fitted.values, activation$GFront)
-abline(0,1,col=2)
-plot(lin$fitted.values,lin$residuals)
-abline(0,0,col=2)
-
 
 # ANOVA GFront~Sexe
 
@@ -191,4 +178,7 @@ abline(0,1,col=2)
 plot(lin$fitted.values,lin$residuals)
 abline(0,0,col=2)
 
+#Evaluation de l'influence du ILH sur GFront
+lin<-lm(gFront~ILH)
+summary(lin)
 
