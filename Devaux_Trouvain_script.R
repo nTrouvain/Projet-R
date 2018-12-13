@@ -36,8 +36,6 @@ activation<-subset(activation, select=Sexe:DHipp)
 activation.acti<-subset(activation, select=GFront:DHipp)
 boxplot(activation.acti)
 abline(0,0,col=2)
-activation.indiv<-subset(activation, TRUE, select=Vol)
-boxplot(activation.indiv)
 
 #Récupération des données quantitatives en fonction du sexe
 activationH<-subset(activation, activation$Sexe=="H", 
@@ -54,7 +52,7 @@ summary(activationF$GFront)
 shapiro.test(activationH$GFront)
 shapiro.test(activationF$GFront)
 t.test(activationH$GFront, activationF$GFront)
-var.test(activationH$GFront, activationF$GFront)
+bartlett.test(activation$GFront, activation$Sexe)
 
 ##### ACP Données mixtes #####
 
@@ -135,7 +133,7 @@ anova(res.aov)
 summary(res.aov)
 
 ### ANCOVA ###
-lin<-lm(gFront~vol+ILH+gFront+gAng+gOcci
+lin<-lm(gFront~age+vol+ILH+gFront+gAng+gOcci
 		+gRol+gTemp+gHipp+dFront+dAng+dOcci
 		+dRol+dTemp+dHipp+sexe)
 summary(lin)
@@ -146,18 +144,23 @@ abline(0,1,col=2)
 plot(lin$fitted.values,lin$residuals)
 abline(0,0,col=2)
 
+shapiro.test(lin$residuals)
+
 # AIC
-step(lin)
+lin.red<-step(lin, direction = "both")
+summary(lin.red)
 
 par(mfrow=c(1,2))
-plot(lin$fitted.values, activation$GFront)
+plot(lin.red$fitted.values, activation$GFront)
 abline(0,1,col=2)
-plot(lin$fitted.values,lin$residuals)
+plot(lin.red$fitted.values,lin.red$residuals)
 abline(0,0,col=2)
 
-# Sans le sexe
+shapiro.test(lin.red$residuals)
 
-lin<-lm(gFront~vol+ILH+gFront+gAng+gOcci
+### Sans le sexe ###
+
+lin<-lm(gFront~age+vol+ILH+gFront+gAng+gOcci
         +gRol+gTemp+gHipp+dFront+dAng+dOcci
         +dRol+dTemp+dHipp)
 summary(lin)
@@ -168,17 +171,32 @@ abline(0,1,col=2)
 plot(lin$fitted.values,lin$residuals)
 abline(0,0,col=2)
 
-# AIC
-lin<-step(lin)
-summary(lin)
+shapiro.test(lin$residuals)
+
+# AIC 
+lin.red<-step(lin)
+summary(lin.red)
 
 par(mfrow=c(1,2))
-plot(lin$fitted.values, activation$GFront)
+plot(lin.red$fitted.values, activation$GFront)
 abline(0,1,col=2)
-plot(lin$fitted.values,lin$residuals)
+plot(lin.red$fitted.values,lin$residuals)
 abline(0,0,col=2)
 
-#Evaluation de l'influence du ILH sur GFront
-lin<-lm(gFront~ILH)
-summary(lin)
+shapiro.test(lin$residuals)
 
+# AIC sans ILH
+
+lin<-lm(gFront~age+vol+gFront+gAng+gOcci
+        +gRol+gTemp+gHipp+dFront+dAng+dOcci
+        +dRol+dTemp+dHipp)
+lin.red<-step(lin)
+summary(lin.red)
+
+
+shapiro.test(lin$residuals)
+par(mfrow=c(1,2))
+plot(lin.red$fitted.values, activation$GFront)
+abline(0,1,col=2)
+plot(lin.red$fitted.values,lin$residuals)
+abline(0,0,col=2)
