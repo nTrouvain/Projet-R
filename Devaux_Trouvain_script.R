@@ -128,14 +128,14 @@ activation.quanti<-subset(activation, select = Age:DHipp)
 
 # ANOVA GFront~Sexe
 
-res.aov<-lm(GFront~Sexe, activation)
+res.aov<-lm(GFront~C(Sexe,sum), activation)
 anova(res.aov)
 summary(res.aov)
 
 ### ANCOVA ###
 lin<-lm(gFront~age+vol+ILH+gFront+gAng+gOcci
 		+gRol+gTemp+gHipp+dFront+dAng+dOcci
-		+dRol+dTemp+dHipp+sexe)
+		+dRol+dTemp+dHipp+C(sexe,sum))
 summary(lin)
 
 par(mfrow=c(1,2))
